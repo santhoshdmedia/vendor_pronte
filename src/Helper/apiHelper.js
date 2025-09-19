@@ -72,6 +72,8 @@ export const updateProductStatus = async (id) => {
 export const getOrders = async (params = {}) => {
   return await custom_request.get(`${baseURL}/orders`, { params });
 };
+export const collectallorders = async (query) =>
+  await custom_request.get(`${baseURL}/order/collect_all_orders/${query}`);
 
 export const getOrder = async (id) => {
   return await custom_request.get(`${baseURL}/orders/${id}`);
