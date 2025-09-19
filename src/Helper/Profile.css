@@ -1,0 +1,140 @@
+/* ProfileUploader.css */
+.profile-uploader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar-uploader {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+  border: 2px dashed #d9d9d9;
+  transition: border-color 0.3s;
+}
+
+.avatar-uploader:hover {
+  border-color: #1890ff;
+}
+
+.upload-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #999;
+  cursor: pointer;
+}
+
+.user-icon {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+.upload-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.upload-icon {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.image-preview-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.remove-image-btn:hover {
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+  color: white;
+  border-radius: 50%;
+}
+
+.image-preview-container:hover .image-overlay {
+  opacity: 1;
+}
+
+.overlay-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.upload-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.upload-help {
+  text-align: center;
+  color: #999;
+  font-size: 12px;
+  max-width: 200px;
+}
+
+.upload-help p {
+  margin: 4px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .avatar-uploader {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .user-icon {
+    font-size: 36px;
+  }
+}
