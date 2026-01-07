@@ -13,14 +13,6 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function ProtectedRoute({ children }) {
   
-  // if (loading) {
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center">
-  //       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-  //     </div>
-  //   );
-  // }
-  
   const token=localStorage.getItem("token")
 
   return token ? children : <Navigate to="/login" />;
@@ -53,7 +45,7 @@ function App() {
                     <Route path="/orders" element={<Orders />} />
                     <Route path="/inventory" element={<Inventory />} />
                     <Route path="/inventory/add-product" element={<AddProduct />} />
-                    <Route path="/inventory/edit-product/:id" element={<EditProduct />} />
+                    <Route path="/inventory/edit-product/:id" element={<AddProduct />} />
                     <Route path="/settings" element={<Settings />} />
                   </Routes>
                 </Layout>

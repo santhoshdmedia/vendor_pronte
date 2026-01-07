@@ -122,7 +122,7 @@ const Dashboard = () => {
           </select>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg p-6 text-white">
+          <div className="bg-gradient-to-r from-red-500 to-red-600 rounded-lg p-6 text-white">
             <div className="flex items-center">
               <TrendingUp className="h-8 w-8" />
               <div className="ml-4">

@@ -44,16 +44,16 @@ export const registerUser = async (userData) => {
 
 // Product APIs
 export const getProducts = async () => {
-  return await custom_request.get(`${baseURL}/vendor_products`);
+  return await custom_request.get(`${baseURL}/product/get_product`);
 };
 
 
 export const getSingleProduct = async (id) => {
-  return await custom_request.get(`${baseURL}/vendor_products/${id}`);
+  return await custom_request.get(`${baseURL}/product/get_product/${id}`);
 };
 
 export const addProduct = async (formData) => {
-  return await custom_request.post(`${baseURL}/vendor_products`, formData);
+  return await custom_request.post(`${baseURL}/product/add_product`, formData);
 };
 
 export const updateProduct = async (id, formData) => {

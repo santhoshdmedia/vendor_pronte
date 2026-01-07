@@ -2,22 +2,46 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Package, CheckCircle, XCircle, Edit, Trash2, Filter } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { getProducts,updateProductStatus } from '../Helper/apiHelper';
+import { getProducts, updateProductStatus } from '../Helper/apiHelper';
 
 const Inventory = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
-  const token = localStorage.getItem('token'); // Get token from localStorage
-
+  const id = localStorage.getItem("user");
+  
+  
   const fetchProducts = async () => {
     try {
-      const response = await getProducts()
+      const response = await getProducts();
+      // Transform the data to match component expectations
+      const transformedProducts = response.data.data.map(product => ({
+        _id: product._id,
+        name: product.name,
+        category: product.category_details?.name || 'Uncategorized',
+        // Use appropriate price based on your business logic
+        sellerPrice: product.Deler_product_price || product.customer_product_price || product.MRP_price || 0,
+        quantity: product.stock_count || 0,
+        vendorDetails: product.vendor_details,
+        // Map stocks_status to status (active/inactive/draft)
+        status: mapStockStatusToStatus(product.stocks_status, product.is_visible),
+        images: Array.isArray(product.images) ? product.images.map(img => 
+          typeof img === 'string' ? img : (img.url || img.path)
+        ) : [],
+        // Keep original data for reference if needed
+        originalData: product
+      }));
+      const filteredtransformedProducts=transformedProducts.filter((res) => {
+        return res.originalData.product_type=="vendor Product";
+      });
       
+      console.log(transformedProducts);
+      console.log(id);
+        
       
-      setProducts(response.data.data || []);
-      setFilteredProducts(response.data.data || []);
+      setProducts(filteredtransformedProducts);
+      setFilteredProducts(filteredtransformedProducts);
     } catch (error) {
       console.error('Error fetching products:', error.message);
       toast.error(error.message || 'Failed to load products');
@@ -26,33 +50,50 @@ const Inventory = () => {
     }
   };
 
+  // Helper function to map stocks_status to status
+  const mapStockStatusToStatus = (stocksStatus, isVisible) => {
+    if (!isVisible) return 'draft';
+    
+    switch(stocksStatus?.toLowerCase()) {
+      case 'in stock':
+      case 'available':
+        return 'active';
+      case 'out of stock':
+      case 'unavailable':
+        return 'inactive';
+      case 'limited':
+        return 'active'; // or 'limited' if you want a separate status
+      default:
+        return 'draft';
+    }
+  };
+
   useEffect(() => {
     fetchProducts();
   }, []);
 
- 
-
   const toggleProductStatus = async (id) => {
     try {
       const response = await updateProductStatus(id);
-      
-      
       const updatedProduct = response.data.product;
       
       setProducts(products.map(product => 
         product._id === id 
-          ? { ...product, status: updatedProduct.status }
+          ? { 
+              ...product, 
+              status: mapStockStatusToStatus(updatedProduct.stocks_status, updatedProduct.is_visible)
+            }
           : product
       ));
       
-      toast.success(`Product ${updatedProduct.status === 'active' ? 'activated' : 'deactivated'} successfully`);
+      toast.success(`Product ${updatedProduct.is_visible ? 'activated' : 'deactivated'} successfully`);
     } catch (error) {
       console.error('Error updating product status:', error.message);
       toast.error(error.message || 'Failed to update product status');
     }
   };
 
-   // Apply filter when statusFilter or products change
+  // Apply filter when statusFilter or products change
   useEffect(() => {
     if (statusFilter === 'all') {
       setFilteredProducts(products);
@@ -60,7 +101,6 @@ const Inventory = () => {
       setFilteredProducts(products.filter(product => product.status === statusFilter));
     }
   }, [statusFilter, products]);
-
 
   const inventorySummary = {
     total: products.length,
@@ -163,7 +203,6 @@ const Inventory = () => {
           {/* Filter Dropdown */}
           <div className="relative">
             <div className="flex items-center space-x-2">
-              {/* <Filter className="w-4 h-4 text-gray-500" /> */}
               <select 
                 value={statusFilter} 
                 onChange={(e) => setStatusFilter(e.target.value)}
@@ -202,48 +241,47 @@ const Inventory = () => {
             <table className="min-w-full">
               <thead>
                 <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 font-medium text-gray-700">S.no</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-700">Product code</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-700">Product</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Category</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-700">Unit Price</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-700">Stock</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-700">Status</th>
                   <th className="text-left py-3 px-4 font-medium text-gray-700">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredProducts.map((product) => {
+                {filteredProducts.map((product,index) => {
                   const StatusIcon = getStatusIcon(product.status);
                   return (
                     <tr key={product._id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-3 px-4">{index+1}</td>
+                      <td className="py-3 px-4">{product.originalData.product_code}</td>
                       <td className="py-3 px-4">
                         <div className="flex items-center">
-                          {product.images && product.images.length > 0 ? (
+                          {product.images && product.images.length > 0 && product.images[0] ? (
                             <img
                               src={product.images[0]}
                               alt={product.name}
                               className="w-10 h-10 object-cover rounded-md mr-3"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextElementSibling.style.display = 'flex';
+                              }}
                             />
-                          ) : (
-                            <div className="w-10 h-10 bg-gray-200 rounded-md mr-3 flex items-center justify-center">
-                              <Package className="w-5 h-5 text-gray-400" />
-                            </div>
-                          )}
+                          ) : null}
+                          <div className={`w-10 h-10 bg-gray-200 rounded-md mr-3 flex items-center justify-center ${product.images && product.images.length > 0 && product.images[0] ? 'hidden' : 'flex'}`}>
+                            <Package className="w-5 h-5 text-gray-400" />
+                          </div>
                           <span className="font-medium text-gray-900">{product.name}</span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-gray-700">{product.category}</td>
                       <td className="py-3 px-4 font-medium text-gray-900">₹{product.sellerPrice}</td>
                       <td className="py-3 px-4">
                         <span className={`text-sm font-medium ${product.quantity > 0 ? 'text-green-600' : 'text-red-600'}`}>
                           {product.quantity}
                         </span>
                       </td>
-                      <td className="py-3 px-4">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(product.status)}`}>
-                          <StatusIcon className="w-3 h-3 mr-1" />
-                          {product.status}
-                        </span>
-                      </td>
+                      
                       <td className="py-3 px-4">
                         <div className="flex items-center space-x-2">
                           <Link
@@ -278,4 +316,3 @@ const Inventory = () => {
 };
 
 export default Inventory;
-
