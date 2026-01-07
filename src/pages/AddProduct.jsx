@@ -228,9 +228,11 @@ const AddProduct = () => {
       if (id) {
         response = await updateProduct(id, productData);
         message.success('Product updated successfully!');
+        navigate("/inventory")
       } else {
         response = await addProduct(productData);
         message.success('Product created successfully!');
+        navigate("/inventory")
       }
 
       setLoading(false);
