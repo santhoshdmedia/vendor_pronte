@@ -16,7 +16,7 @@ function ProtectedRoute({ children }) {
   const token=localStorage.getItem("token")
 
   return token ? children : <Navigate to="/login" />;
-}
+
 
 function PublicRoute({ children }) {
   const token=localStorage.getItem("token")
